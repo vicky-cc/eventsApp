@@ -1,20 +1,122 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import { storeToRefs } from "pinia";
-import { ref } from "vue";
-import { onLoad, onPullDownRefresh, onReachBottom } from "@dcloudio/uni-app";
+import { computed, nextTick, ref } from "vue";
+import { onLoad, onReady } from "@dcloudio/uni-app";
+import MescrollBody from "mescroll-uni/mescroll-body.vue";
 
-import StateBlock from "@/components/common/StateBlock.vue";
-import EventGridItem from "@/components/event/EventGridItem.vue";
-import EventListItem from "@/components/event/EventListItem.vue";
+import HomeEventsContent from "./HomeEventsContent.vue";
 import { useEventStore } from "@/stores";
+import { useMescroll } from "@/uni_modules/mescroll-uni/hooks/useMescroll";
+
+import { buildListContainerHeight } from "./layout";
+import { queueMescrollFinish } from "./paging";
+
+interface MescrollBodyInstance {
+  num: number;
+  resetUpScroll: () => void;
+  endSuccess: (dataSize?: number, hasNext?: boolean) => void;
+  endErr: () => void;
+  onPageScroll?: (e: unknown) => void;
+  onReachBottom?: () => void;
+}
+
+const uiText = {
+  searchPlaceholder: "\u8bf7\u8f93\u5165\u5173\u952e\u8bcd\u641c\u7d22\u6d3b\u52a8",
+  search: "\u641c\u7d22",
+  toggleGrid: "\u5207\u6362\u7f51\u683c\u89c6\u56fe",
+  toggleList: "\u5207\u6362\u5217\u8868\u89c6\u56fe",
+  loadingTitle: "\u52a0\u8f7d\u4e2d...",
+  loadingSubtitle: "\u6b63\u5728\u83b7\u53d6\u6d3b\u52a8\u5217\u8868",
+  errorTitle: "\u52a0\u8f7d\u5931\u8d25",
+  retry: "\u91cd\u8bd5",
+  emptyTitle: "\u672a\u627e\u5230\u76f8\u5173\u6d3b\u52a8",
+  emptySubtitle: "\u8bf7\u66f4\u6362\u5173\u952e\u8bcd\u8bd5\u8bd5",
+  loadingMore: "\u52a0\u8f7d\u66f4\u591a\u4e2d...",
+  noMore: "\u6ca1\u6709\u66f4\u591a\u6d3b\u52a8\u4e86",
+  loadMoreFail: "\u52a0\u8f7d\u5931\u8d25\uff0c\u8bf7\u4e0b\u62c9\u91cd\u8bd5"
+} as const;
 
 const store = useEventStore();
-const { events, loading, refreshing, loadingMore, error, viewMode, hasMore, keyword } = storeToRefs(store);
+const { events, loading, error, viewMode, hasMore, keyword } = storeToRefs(store);
 
 const keywordInput = ref("");
+const searchShellWrapperHeight = ref(120);
 
-async function handleSearch(): Promise<void> {
-  await store.search(keywordInput.value);
+const { mescrollInit, resetUpScroll } = useMescroll<MescrollBodyInstance>();
+
+const listContainerHeight = computed(() => buildListContainerHeight(searchShellWrapperHeight.value));
+const nextViewMode = computed(() => (viewMode.value === "list" ? "grid" : "list"));
+
+const downOption = {
+  auto: false,
+  native: false
+};
+
+const upOption = {
+  auto: true,
+  page: {
+    num: 1,
+    size: 20
+  },
+  textLoading: uiText.loadingMore,
+  textNoMore: uiText.noMore,
+  textErr: uiText.loadMoreFail,
+  empty: {
+    use: false
+  }
+};
+
+function measureSearchShellWrapper(): void {
+  const query = uni.createSelectorQuery();
+
+  query
+    .select(".search-shell-wrap")
+    .boundingClientRect((rect: unknown) => {
+      if (
+        rect &&
+        !Array.isArray(rect) &&
+        typeof rect === "object" &&
+        "height" in rect &&
+        typeof (rect as { height?: unknown }).height === "number"
+      ) {
+        const nextHeight = Math.ceil((rect as { height: number }).height);
+        if (nextHeight > 0) {
+          searchShellWrapperHeight.value = nextHeight;
+        }
+      }
+    })
+    .exec();
+}
+
+function handleSearch(): void {
+  resetUpScroll();
+}
+
+function handleDown(): void {
+  resetUpScroll();
+}
+
+async function handleUp(instance: MescrollBodyInstance): Promise<void> {
+  const isFirstPage = instance.num <= 1;
+  const previousLength = events.value.length;
+
+  if (isFirstPage) {
+    await store.search(keywordInput.value);
+  } else {
+    await store.loadMore();
+  }
+
+  if (error.value) {
+    await queueMescrollFinish(() => {
+      instance.endErr();
+    });
+    return;
+  }
+
+  const pageSize = isFirstPage ? events.value.length : Math.max(events.value.length - previousLength, 0);
+  await queueMescrollFinish(() => {
+    instance.endSuccess(pageSize, hasMore.value);
+  });
 }
 
 function openDetail(id: string): void {
@@ -23,90 +125,68 @@ function openDetail(id: string): void {
   });
 }
 
-function switchView(mode: "list" | "grid"): void {
-  store.setViewMode(mode);
+function toggleViewMode(): void {
+  store.setViewMode(nextViewMode.value);
 }
 
-async function retry(): Promise<void> {
-  if (keyword.value) {
-    await store.search(keyword.value);
-    return;
-  }
-
-  await store.search(keywordInput.value);
+function retry(): void {
+  resetUpScroll();
 }
 
-onLoad(async () => {
-  await store.search("");
+onLoad(() => {
+  keywordInput.value = keyword.value;
+  void store.search(keywordInput.value);
 });
 
-onPullDownRefresh(async () => {
-  await store.refresh();
-  uni.stopPullDownRefresh();
-});
-
-onReachBottom(async () => {
-  await store.loadMore();
+onReady(() => {
+  nextTick(() => {
+    measureSearchShellWrapper();
+  });
 });
 </script>
 
 <template>
-  <view class="app-page">
-    <view class="toolbar-card">
-      <view class="search-row">
-        <input
-          v-model="keywordInput"
-          class="search-input"
-          placeholder="请输入关键词搜索活动"
-          confirm-type="search"
-          @confirm="handleSearch"
-        />
-        <button class="btn-primary" size="mini" @tap="handleSearch">搜索</button>
-      </view>
-
-      <view class="view-switch">
-        <button :class="viewMode === 'list' ? 'btn-primary' : 'btn-secondary'" size="mini" @tap="switchView('list')">
-          列表
-        </button>
-        <button :class="viewMode === 'grid' ? 'btn-primary' : 'btn-secondary'" size="mini" @tap="switchView('grid')">
-          网格
-        </button>
+  <view class="home-page">
+    <view class="search-shell-wrap">
+      <view class="search-shell">
+        <view class="search-row">
+          <input
+            v-model="keywordInput"
+            class="search-input"
+            :placeholder="uiText.searchPlaceholder"
+            confirm-type="search"
+            @confirm="handleSearch"
+          />
+          <button class="search-btn" size="mini" @tap="handleSearch">{{ uiText.search }}</button>
+          <button
+            class="layout-toggle"
+            :aria-label="nextViewMode === 'grid' ? uiText.toggleGrid : uiText.toggleList"
+            @tap="toggleViewMode"
+          >
+            <view class="layout-icon" :class="nextViewMode === 'grid' ? 'layout-icon-grid' : 'layout-icon-list'" />
+          </button>
+        </view>
       </view>
     </view>
 
-    <StateBlock
-      v-if="loading && events.length === 0"
-      title="加载中..."
-      subtitle="正在获取活动列表"
-    />
-
-    <StateBlock
-      v-else-if="error"
-      title="加载失败"
-      :subtitle="error"
-      :danger="true"
-      action-text="重试"
-      @retry="retry"
-    />
-
-    <StateBlock
-      v-else-if="events.length === 0"
-      title="未找到相关活动"
-      subtitle="请更换关键词试试"
-    />
-
-    <template v-else>
-      <view v-if="viewMode === 'list'">
-        <EventListItem v-for="item in events" :key="item.id" :event="item" @select="openDetail" />
-      </view>
-
-      <view v-else class="events-grid">
-        <EventGridItem v-for="item in events" :key="item.id" :event="item" @select="openDetail" />
-      </view>
-
-      <view class="footer-text" v-if="refreshing">ˢ����...</view>
-      <view class="footer-text" v-else-if="loadingMore">加载更多中...</view>
-      <view class="footer-text" v-else-if="!hasMore">没有更多活动了</view>
-    </template>
+    <mescroll-body
+      class="events-scroll"
+      :height="listContainerHeight"
+      :down="downOption"
+      :up="upOption"
+      @init="mescrollInit"
+      @down="handleDown"
+      @up="handleUp"
+    >
+      <HomeEventsContent
+        :events="events"
+        :loading="loading"
+        :error="error"
+        :view-mode="viewMode"
+        :ui-text="uiText"
+        @open-detail="openDetail"
+        @retry="retry"
+      />
+    </mescroll-body>
   </view>
 </template>

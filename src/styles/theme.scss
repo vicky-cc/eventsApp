@@ -1,14 +1,14 @@
-$brand-900: #0f172a;
-$brand-700: #334155;
-$surface-100: #f8fafc;
-$surface-200: #e2e8f0;
-$surface-300: #cbd5e1;
-$accent: #0ea5e9;
+$ios-bg: #f2f2f7;
+$ios-card: rgba(255, 255, 255, 0.92);
+$ios-border: #e5e5ea;
+$ios-text: #1c1c1e;
+$ios-subtext: #6e6e73;
+$ios-primary: #007aff;
 $danger: #dc2626;
 
 page {
-  background: linear-gradient(180deg, #f8fafc 0%, #eff6ff 100%);
-  color: $brand-900;
+  background: $ios-bg;
+  color: $ios-text;
 }
 
 .app-page {
@@ -16,77 +16,153 @@ page {
   padding: 24rpx;
 }
 
-.toolbar-card {
-  background: #ffffff;
-  border: 1px solid $surface-200;
-  border-radius: 18rpx;
+.home-page {
+  min-height: 100vh;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  background: $ios-bg;
+}
+
+.search-shell-wrap {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  padding: 20rpx 20rpx 12rpx;
+  box-sizing: border-box;
+  background: linear-gradient(to bottom, rgba(242, 242, 247, 0.96), rgba(242, 242, 247, 0.8));
+  backdrop-filter: blur(10px);
+}
+
+.search-shell {
+  background: rgba(255, 255, 255, 0.86);
+  border: 1px solid $ios-border;
+  border-radius: 26rpx;
   padding: 18rpx;
-  margin-bottom: 18rpx;
-  box-shadow: 0 8rpx 20rpx rgba(15, 23, 42, 0.05);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 12rpx 28rpx rgba(28, 28, 30, 0.08);
 }
 
 .search-row {
   display: flex;
-  gap: 12rpx;
   align-items: center;
+  gap: 12rpx;
 }
 
 .search-input {
   flex: 1;
-  background: $surface-100;
-  border: 1px solid $surface-300;
-  border-radius: 14rpx;
-  padding: 0 16rpx;
-  height: 72rpx;
+  height: 74rpx;
+  border-radius: 16rpx;
+  border: 1px solid $ios-border;
+  background: #ffffff;
+  color: $ios-text;
+  padding: 0 18rpx;
+  font-size: 28rpx;
 }
 
-.view-switch {
+.search-btn {
+  height: 66rpx;
+  line-height: 66rpx;
+  border-radius: 16rpx;
+  border: none;
+  padding: 0 24rpx;
+  background: $ios-primary;
+  color: #ffffff;
+  font-size: 25rpx;
+}
+
+.layout-toggle {
+  width: 66rpx;
+  height: 66rpx;
+  border-radius: 16rpx;
+  border: 1px solid $ios-border;
+  background: #ffffff;
   display: flex;
-  gap: 12rpx;
-  margin-top: 14rpx;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.layout-icon {
+  width: 28rpx;
+  height: 28rpx;
+}
+
+.layout-icon-grid {
+  background:
+    linear-gradient($ios-subtext, $ios-subtext) 0 0 / 10rpx 10rpx no-repeat,
+    linear-gradient($ios-subtext, $ios-subtext) 18rpx 0 / 10rpx 10rpx no-repeat,
+    linear-gradient($ios-subtext, $ios-subtext) 0 18rpx / 10rpx 10rpx no-repeat,
+    linear-gradient($ios-subtext, $ios-subtext) 18rpx 18rpx / 10rpx 10rpx no-repeat;
+}
+
+.layout-icon-list {
+  background:
+    linear-gradient($ios-subtext, $ios-subtext) 0 2rpx / 28rpx 4rpx no-repeat,
+    linear-gradient($ios-subtext, $ios-subtext) 0 12rpx / 28rpx 4rpx no-repeat,
+    linear-gradient($ios-subtext, $ios-subtext) 0 22rpx / 28rpx 4rpx no-repeat;
+}
+
+.events-scroll {
+  flex: 1;
+  min-height: 0;
+}
+
+.events-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  padding: 0 20rpx 24rpx;
+}
+
+.events-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
 }
 
 .events-grid {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16rpx;
 }
 
 .footer-text {
-  color: $brand-700;
+  color: $ios-subtext;
   text-align: center;
-  margin: 20rpx 0;
+  margin: 8rpx 0;
   font-size: 24rpx;
 }
 
 .card {
-  background: #ffffff;
-  border: 1px solid $surface-200;
-  border-radius: 18rpx;
+  background: $ios-card;
+  border: 1px solid $ios-border;
+  border-radius: 22rpx;
   overflow: hidden;
-  box-shadow: 0 10rpx 22rpx rgba(15, 23, 42, 0.07);
+  box-shadow: 0 14rpx 30rpx rgba(28, 28, 30, 0.08);
 }
 
 .card-body {
-  padding: 16rpx;
+  padding: 18rpx;
 }
 
 .card-title {
   font-size: 30rpx;
   line-height: 1.35;
   font-weight: 600;
+  color: $ios-text;
 }
 
 .card-meta {
   margin-top: 10rpx;
-  color: $brand-700;
+  color: $ios-subtext;
   font-size: 24rpx;
 }
 
 .state-block {
-  background: #ffffff;
-  border: 1px dashed $surface-300;
-  border-radius: 16rpx;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px dashed $ios-border;
+  border-radius: 18rpx;
   padding: 24rpx;
   text-align: center;
 }
@@ -94,18 +170,15 @@ page {
 .state-title {
   font-size: 30rpx;
   font-weight: 600;
+  color: $ios-text;
 }
 
 .state-subtitle {
   margin-top: 8rpx;
   font-size: 24rpx;
-  color: $brand-700;
+  color: $ios-subtext;
 }
 
 .danger {
   color: $danger;
 }
-
-.btn-primary { background: #0ea5e9; color: #fff; }
-.btn-secondary { background: #f1f5f9; color: #334155; }
-

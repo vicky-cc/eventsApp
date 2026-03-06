@@ -4,7 +4,8 @@
       "path": "pages/index/index",
       "style": {
         "navigationBarTitleText": "Events",
-        "enablePullDownRefresh": true
+        "enablePullDownRefresh": false,
+        "onReachBottomDistance": 120
       }
     },
     {
@@ -15,9 +16,9 @@
     }
   ],
   "globalStyle": {
-    "navigationBarBackgroundColor": "#0f172a",
-    "navigationBarTextStyle": "white",
-    "backgroundColor": "#f8fafc"
+    "navigationBarBackgroundColor": "#f2f2f7",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f2f2f7"
   },
   "subPackages": []
 }

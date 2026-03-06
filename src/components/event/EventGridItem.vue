@@ -15,10 +15,10 @@ function openDetail(): void {
 </script>
 
 <template>
-  <view class="card" style="width: calc(50% - 8rpx)" @tap="openDetail">
+  <view class="card" @tap="openDetail">
     <image :src="props.event.image" mode="aspectFill" style="width: 100%; height: 210rpx" />
     <view class="card-body">
-      <view class="card-title" style="font-size: 28rpx">{{ props.event.name }}</view>
+      <view class="card-title card-title-grid">{{ props.event.name }}</view>
       <view class="card-meta">{{ props.event.dateTimeText }}</view>
     </view>
   </view>
