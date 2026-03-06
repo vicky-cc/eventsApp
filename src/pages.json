@@ -1,0 +1,23 @@
+{
+  "pages": [
+    {
+      "path": "pages/index/index",
+      "style": {
+        "navigationBarTitleText": "Events",
+        "enablePullDownRefresh": true
+      }
+    },
+    {
+      "path": "pages/event-detail/index",
+      "style": {
+        "navigationBarTitleText": "Event Detail"
+      }
+    }
+  ],
+  "globalStyle": {
+    "navigationBarBackgroundColor": "#0f172a",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f8fafc"
+  },
+  "subPackages": []
+}

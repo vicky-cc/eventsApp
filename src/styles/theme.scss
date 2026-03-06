@@ -1,0 +1,111 @@
+$brand-900: #0f172a;
+$brand-700: #334155;
+$surface-100: #f8fafc;
+$surface-200: #e2e8f0;
+$surface-300: #cbd5e1;
+$accent: #0ea5e9;
+$danger: #dc2626;
+
+page {
+  background: linear-gradient(180deg, #f8fafc 0%, #eff6ff 100%);
+  color: $brand-900;
+}
+
+.app-page {
+  min-height: 100vh;
+  padding: 24rpx;
+}
+
+.toolbar-card {
+  background: #ffffff;
+  border: 1px solid $surface-200;
+  border-radius: 18rpx;
+  padding: 18rpx;
+  margin-bottom: 18rpx;
+  box-shadow: 0 8rpx 20rpx rgba(15, 23, 42, 0.05);
+}
+
+.search-row {
+  display: flex;
+  gap: 12rpx;
+  align-items: center;
+}
+
+.search-input {
+  flex: 1;
+  background: $surface-100;
+  border: 1px solid $surface-300;
+  border-radius: 14rpx;
+  padding: 0 16rpx;
+  height: 72rpx;
+}
+
+.view-switch {
+  display: flex;
+  gap: 12rpx;
+  margin-top: 14rpx;
+}
+
+.events-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.footer-text {
+  color: $brand-700;
+  text-align: center;
+  margin: 20rpx 0;
+  font-size: 24rpx;
+}
+
+.card {
+  background: #ffffff;
+  border: 1px solid $surface-200;
+  border-radius: 18rpx;
+  overflow: hidden;
+  box-shadow: 0 10rpx 22rpx rgba(15, 23, 42, 0.07);
+}
+
+.card-body {
+  padding: 16rpx;
+}
+
+.card-title {
+  font-size: 30rpx;
+  line-height: 1.35;
+  font-weight: 600;
+}
+
+.card-meta {
+  margin-top: 10rpx;
+  color: $brand-700;
+  font-size: 24rpx;
+}
+
+.state-block {
+  background: #ffffff;
+  border: 1px dashed $surface-300;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  text-align: center;
+}
+
+.state-title {
+  font-size: 30rpx;
+  font-weight: 600;
+}
+
+.state-subtitle {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: $brand-700;
+}
+
+.danger {
+  color: $danger;
+}
+
+.btn-primary { background: #0ea5e9; color: #fff; }
+.btn-secondary { background: #f1f5f9; color: #334155; }
+
