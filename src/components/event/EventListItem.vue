@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import type { EventSummary } from "@/types/event";
 
 const props = defineProps<{
@@ -15,12 +15,19 @@ function openDetail(): void {
 </script>
 
 <template>
-  <view class="card" @tap="openDetail">
-    <image :src="props.event.image" mode="aspectFill" style="width: 100%; height: 280rpx" />
-    <view class="card-body">
-      <view class="card-title">{{ props.event.name }}</view>
-      <view class="card-meta">{{ props.event.dateTimeText }}</view>
-      <view class="card-meta">{{ props.event.venue }} · {{ props.event.city }}</view>
+  <view class="event-card event-card-list" @tap="openDetail">
+    <view class="event-media event-media-list">
+      <image class="event-image event-image-list" :src="props.event.image" mode="aspectFill" />
+      <view class="event-media-overlay" />
+      <view class="event-chip event-chip-top">{{ props.event.dateTimeText }}</view>
+    </view>
+
+    <view class="event-body event-body-list">
+      <view class="event-title">{{ props.event.name }}</view>
+      <view class="event-meta-row">
+        <text class="event-tag">{{ props.event.venue }}</text>
+        <text class="event-tag">{{ props.event.city }}</text>
+      </view>
     </view>
   </view>
 </template>

@@ -15,11 +15,18 @@ function openDetail(): void {
 </script>
 
 <template>
-  <view class="card" @tap="openDetail">
-    <image :src="props.event.image" mode="aspectFill" style="width: 100%; height: 210rpx" />
-    <view class="card-body">
-      <view class="card-title card-title-grid">{{ props.event.name }}</view>
-      <view class="card-meta">{{ props.event.dateTimeText }}</view>
+  <view class="event-card event-card-grid" @tap="openDetail">
+    <view class="event-media event-media-grid">
+      <image class="event-image event-image-grid" :src="props.event.image" mode="aspectFill" />
+      <view class="event-media-overlay" />
+      <view class="event-chip event-chip-top">{{ props.event.dateTimeText }}</view>
+    </view>
+
+    <view class="event-body event-body-grid">
+      <view class="event-title event-title-grid">{{ props.event.name }}</view>
+      <view class="event-meta-row">
+        <text class="event-tag event-tag-compact">{{ props.event.city }}</text>
+      </view>
     </view>
   </view>
 </template>

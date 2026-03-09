@@ -5,5 +5,5 @@ export function buildListContainerHeight(searchShellHeight: number): string {
     ? Math.ceil(searchShellHeight)
     : DEFAULT_SEARCH_SHELL_HEIGHT;
 
-  return `calc(100vh - ${normalizedHeight}px - env(safe-area-inset-bottom))`;
+  return `calc(100vh - var(--window-top, 0px) - ${normalizedHeight}px - env(safe-area-inset-bottom))`;
 }

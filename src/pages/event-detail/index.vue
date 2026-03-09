@@ -4,6 +4,7 @@ import { onLoad } from "@dcloudio/uni-app";
 
 import StateBlock from "@/components/common/StateBlock.vue";
 import { useEventStore } from "@/stores";
+import { parseEventIdFromLoadOptions } from "@/pages/event-detail/route";
 import type { EventDetail } from "@/types/event";
 
 const store = useEventStore();
@@ -16,10 +17,10 @@ function formatValue(value: string): string {
 }
 
 onLoad(async (options) => {
-  const id = options?.id;
+  const id = parseEventIdFromLoadOptions(options);
 
-  if (!id || Array.isArray(id)) {
-    error.value = "缺少活动ID";
+  if (!id) {
+    error.value = "缺少或无效的活动ID";
     return;
   }
 
@@ -37,7 +38,7 @@ onLoad(async (options) => {
 </script>
 
 <template>
-  <view class="app-page">
+  <view class="app-page detail-page">
     <StateBlock v-if="loading" title="加载中..." subtitle="正在获取活动详情" />
 
     <StateBlock
@@ -47,16 +48,51 @@ onLoad(async (options) => {
       :danger="true"
     />
 
-    <view v-else-if="detail" class="card">
-      <image :src="detail.image" mode="aspectFill" style="width: 100%; height: 360rpx" />
-      <view class="card-body">
-        <view class="card-title">{{ detail.name }}</view>
-        <view class="card-meta">时间：{{ detail.dateTimeText }}</view>
-        <view class="card-meta">地点：{{ detail.venue }} · {{ detail.city }}</view>
-        <view class="card-meta">类别：{{ formatValue(detail.category) }}</view>
-        <view class="card-meta">票价：{{ formatValue(detail.priceRange) }}</view>
-        <view class="card-meta">说明：{{ formatValue(detail.info) }}</view>
-        <view class="card-meta">官方链接：{{ formatValue(detail.url) }}</view>
+    <view v-else-if="detail" class="detail-layout">
+      <view class="detail-hero">
+        <image class="detail-hero-image" :src="detail.image" mode="aspectFill" />
+        <view class="detail-hero-overlay" />
+        <view class="detail-hero-content">
+          <view class="detail-pill">{{ detail.dateTimeText }}</view>
+          <view class="detail-title">{{ detail.name }}</view>
+        </view>
+      </view>
+
+      <view class="detail-section-card">
+        <view class="detail-section-title">活动信息</view>
+        <view class="detail-meta-grid">
+          <view class="detail-meta-item">
+            <view class="detail-meta-label">场馆</view>
+            <view class="detail-meta-value">{{ formatValue(detail.venue) }}</view>
+          </view>
+          <view class="detail-meta-item">
+            <view class="detail-meta-label">城市</view>
+            <view class="detail-meta-value">{{ formatValue(detail.city) }}</view>
+          </view>
+          <view class="detail-meta-item">
+            <view class="detail-meta-label">类别</view>
+            <view class="detail-meta-value">{{ formatValue(detail.category) }}</view>
+          </view>
+          <view class="detail-meta-item">
+            <view class="detail-meta-label">票价</view>
+            <view class="detail-meta-value">{{ formatValue(detail.priceRange) }}</view>
+          </view>
+        </view>
+      </view>
+
+      <view class="detail-section-card">
+        <view class="detail-section-title">活动说明</view>
+        <view class="detail-copy">{{ formatValue(detail.info) }}</view>
+      </view>
+
+      <view v-if="detail.seatmap" class="detail-section-card">
+        <view class="detail-section-title">座位示意图</view>
+        <image class="detail-seatmap-image" :src="detail.seatmap" mode="aspectFit" />
+      </view>
+
+      <view class="detail-section-card">
+        <view class="detail-section-title">官方链接</view>
+        <view class="detail-link">{{ formatValue(detail.url) }}</view>
       </view>
     </view>
   </view>

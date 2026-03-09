@@ -45,6 +45,7 @@ describe("event service", () => {
     const options = request.mock.calls[0][0];
     expect(options.url).toContain("events.json");
     expect(options.data.keyword).toBe("rock");
+    expect("keyWord" in options.data).toBe(false);
     expect(options.data.page).toBe(1);
     expect(options.data.apikey).toBe("test-key");
   });
@@ -70,5 +71,22 @@ describe("event service", () => {
     expect(listResult.items).toHaveLength(1);
     expect(listResult.hasMore).toBe(true);
     expect(detailResult.id).toBe("102");
+  });
+
+  it("encodes event id when requesting detail", async () => {
+    const detail = createListResponse("102")._embedded?.events?.[0];
+    const request = vi.fn().mockResolvedValue(detail);
+    const service = createEventService(
+      {
+        apiKey: "test-key",
+        baseUrl: "https://app.ticketmaster.com/discovery/v2"
+      },
+      request
+    );
+
+    await service.getEventDetail("abc/1?x=2&y=3");
+
+    const options = request.mock.calls[0][0];
+    expect(options.url).toContain("events/abc%2F1%3Fx%3D2%26y%3D3.json");
   });
 });

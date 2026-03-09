@@ -38,7 +38,7 @@ export function createEventService(config: AppConfig, requester: Requester = uni
 
     async getEventDetail(id: string): Promise<EventDetail> {
       const response = (await requester({
-        url: buildUrl(config.baseUrl, `events/${id}.json`),
+        url: buildUrl(config.baseUrl, `events/${encodeURIComponent(id)}.json`),
         data: {
           apikey: config.apiKey
         },

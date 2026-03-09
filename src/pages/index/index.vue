@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
 import { computed, nextTick, ref } from "vue";
-import { onLoad, onReady } from "@dcloudio/uni-app";
+import { onLoad, onPageScroll, onReady } from "@dcloudio/uni-app";
 import MescrollBody from "mescroll-uni/mescroll-body.vue";
 
 import HomeEventsContent from "./HomeEventsContent.vue";
@@ -10,6 +10,8 @@ import { useMescroll } from "@/uni_modules/mescroll-uni/hooks/useMescroll";
 
 import { buildListContainerHeight } from "./layout";
 import { queueMescrollFinish } from "./paging";
+import { shouldRunSearch } from "./upAction";
+import { buildEventDetailUrl } from "../event-detail/route";
 
 interface MescrollBodyInstance {
   num: number;
@@ -20,29 +22,15 @@ interface MescrollBodyInstance {
   onReachBottom?: () => void;
 }
 
-const uiText = {
-  searchPlaceholder: "\u8bf7\u8f93\u5165\u5173\u952e\u8bcd\u641c\u7d22\u6d3b\u52a8",
-  search: "\u641c\u7d22",
-  toggleGrid: "\u5207\u6362\u7f51\u683c\u89c6\u56fe",
-  toggleList: "\u5207\u6362\u5217\u8868\u89c6\u56fe",
-  loadingTitle: "\u52a0\u8f7d\u4e2d...",
-  loadingSubtitle: "\u6b63\u5728\u83b7\u53d6\u6d3b\u52a8\u5217\u8868",
-  errorTitle: "\u52a0\u8f7d\u5931\u8d25",
-  retry: "\u91cd\u8bd5",
-  emptyTitle: "\u672a\u627e\u5230\u76f8\u5173\u6d3b\u52a8",
-  emptySubtitle: "\u8bf7\u66f4\u6362\u5173\u952e\u8bcd\u8bd5\u8bd5",
-  loadingMore: "\u52a0\u8f7d\u66f4\u591a\u4e2d...",
-  noMore: "\u6ca1\u6709\u66f4\u591a\u6d3b\u52a8\u4e86",
-  loadMoreFail: "\u52a0\u8f7d\u5931\u8d25\uff0c\u8bf7\u4e0b\u62c9\u91cd\u8bd5"
-} as const;
-
 const store = useEventStore();
 const { events, loading, error, viewMode, hasMore, keyword } = storeToRefs(store);
 
 const keywordInput = ref("");
 const searchShellWrapperHeight = ref(120);
+const pageScrolled = ref(false);
+const forceSearchOnNextUp = ref(false);
 
-const { mescrollInit, resetUpScroll } = useMescroll<MescrollBodyInstance>();
+const { mescrollInit, getMescroll, resetUpScroll } = useMescroll<MescrollBodyInstance>();
 
 const listContainerHeight = computed(() => buildListContainerHeight(searchShellWrapperHeight.value));
 const nextViewMode = computed(() => (viewMode.value === "list" ? "grid" : "list"));
@@ -53,14 +41,14 @@ const downOption = {
 };
 
 const upOption = {
-  auto: true,
+  auto: false,
   page: {
     num: 1,
     size: 20
   },
-  textLoading: uiText.loadingMore,
-  textNoMore: uiText.noMore,
-  textErr: uiText.loadMoreFail,
+  textLoading: "加载更多中...",
+  textNoMore: "没有更多活动了",
+  textErr: "加载失败，请下拉重试",
   empty: {
     use: false
   }
@@ -89,6 +77,13 @@ function measureSearchShellWrapper(): void {
 }
 
 function handleSearch(): void {
+  forceSearchOnNextUp.value = true;
+
+  if (!getMescroll()) {
+    void store.search(keywordInput.value);
+    return;
+  }
+
   resetUpScroll();
 }
 
@@ -99,8 +94,15 @@ function handleDown(): void {
 async function handleUp(instance: MescrollBodyInstance): Promise<void> {
   const isFirstPage = instance.num <= 1;
   const previousLength = events.value.length;
+  const shouldSearch = shouldRunSearch({
+    isFirstPage,
+    forceSearch: forceSearchOnNextUp.value,
+    inputKeyword: keywordInput.value,
+    storeKeyword: keyword.value
+  });
 
-  if (isFirstPage) {
+  if (shouldSearch) {
+    forceSearchOnNextUp.value = false;
     await store.search(keywordInput.value);
   } else {
     await store.loadMore();
@@ -121,7 +123,7 @@ async function handleUp(instance: MescrollBodyInstance): Promise<void> {
 
 function openDetail(id: string): void {
   uni.navigateTo({
-    url: `/pages/event-detail/index?id=${id}`
+    url: buildEventDetailUrl(id)
   });
 }
 
@@ -143,24 +145,28 @@ onReady(() => {
     measureSearchShellWrapper();
   });
 });
+
+onPageScroll((event) => {
+  pageScrolled.value = (event.scrollTop ?? 0) > 6;
+});
 </script>
 
 <template>
   <view class="home-page">
-    <view class="search-shell-wrap">
+    <view class="search-shell-wrap" :class="{ 'search-shell-wrap-scrolled': pageScrolled }">
       <view class="search-shell">
         <view class="search-row">
           <input
             v-model="keywordInput"
             class="search-input"
-            :placeholder="uiText.searchPlaceholder"
+            placeholder="请输入关键词搜索活动"
             confirm-type="search"
             @confirm="handleSearch"
           />
-          <button class="search-btn" size="mini" @tap="handleSearch">{{ uiText.search }}</button>
+          <button class="search-btn" size="mini" @tap="handleSearch">搜索</button>
           <button
             class="layout-toggle"
-            :aria-label="nextViewMode === 'grid' ? uiText.toggleGrid : uiText.toggleList"
+            :aria-label="nextViewMode === 'grid' ? '切换网格视图' : '切换列表视图'"
             @tap="toggleViewMode"
           >
             <view class="layout-icon" :class="nextViewMode === 'grid' ? 'layout-icon-grid' : 'layout-icon-list'" />
@@ -168,6 +174,7 @@ onReady(() => {
         </view>
       </view>
     </view>
+    <view class="search-shell-placeholder" :style="{ height: `${searchShellWrapperHeight}px` }" />
 
     <mescroll-body
       class="events-scroll"
@@ -183,7 +190,6 @@ onReady(() => {
         :loading="loading"
         :error="error"
         :view-mode="viewMode"
-        :ui-text="uiText"
         @open-detail="openDetail"
         @retry="retry"
       />

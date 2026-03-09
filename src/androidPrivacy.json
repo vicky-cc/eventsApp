@@ -1,0 +1,31 @@
+{
+  "version": "1",
+  "prompt": "template",
+  "title": "服务协议和隐私政策",
+  "message": "请你务必审慎阅读、充分理解《用户协议》和《隐私政策》各条款，包括但不限于：为了向你提供活动查询服务，我们会处理必要的网络访问能力。你可阅读<a href=\"https://example.com/user-agreement\">《用户协议》</a>与<a href=\"https://example.com/privacy-policy\">《隐私政策》</a>了解详细信息。如你同意，请点击“同意并继续”开始使用我们的服务。",
+  "buttonAccept": "同意并继续",
+  "buttonRefuse": "暂不同意",
+  "second": {
+    "title": "确认提示",
+    "message": "你需要先同意《用户协议》和《隐私政策》后，才能继续使用该应用。",
+    "buttonAccept": "继续同意",
+    "buttonRefuse": "退出应用"
+  },
+  "styles": {
+    "backgroundColor": "#ffffff",
+    "borderRadius": "10px",
+    "title": {
+      "color": "#111111"
+    },
+    "message": {
+      "color": "#333333"
+    },
+    "buttonAccept": {
+      "color": "#ffffff",
+      "backgroundColor": "#1f6fff"
+    },
+    "buttonRefuse": {
+      "color": "#666666"
+    }
+  }
+}
