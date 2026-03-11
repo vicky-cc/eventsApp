@@ -84,19 +84,61 @@ button::after {
 .search-row {
   display: flex;
   align-items: center;
+  flex-wrap: nowrap;
   gap: 10rpx;
 }
 
-.search-input {
-  flex: 1;
+.search-input-wrap {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
   height: var(--search-control-height);
+}
+
+.search-input {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
   border-radius: 18rpx;
   border: 1px solid rgba(103, 129, 164, 0.22);
   background: rgba(255, 255, 255, 0.9);
   color: var(--text-primary);
-  padding: 0 20rpx;
+  padding: 0 58rpx 0 20rpx;
   font-size: 32rpx;
   transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.search-clear {
+  position: absolute;
+  top: 50%;
+  right: 12rpx;
+  width: 40rpx;
+  height: 40rpx;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 999rpx;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transform: translateY(-50%);
+  background: rgba(93, 113, 137, 0.14);
+  color: var(--text-secondary);
+  font-size: 26rpx;
+  // line-height: 38rpx;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.search-clear:active {
+  background: rgba(23, 124, 243, 0.16);
+  color: var(--accent-strong);
+}
+
+
+.search-clear::after {
+  display: none;
 }
 
 .search-input:focus {
@@ -131,10 +173,13 @@ uni-button.search-btn[size="mini"] {
   display: inline-flex !important;
   align-items: center;
   justify-content: center;
+  flex: 0 0 auto;
+  white-space: nowrap;
   padding: 0 24rpx !important;
 }
 
 .layout-toggle {
+  flex: 0 0 auto;
   width: var(--search-control-height);
   height: var(--search-control-height);
   border-radius: 16rpx;
@@ -332,6 +377,7 @@ uni-button.search-btn[size="mini"] {
 .event-title-grid {
   font-size: 26rpx;
   line-height: 1.32;
+  -webkit-line-clamp: 3;
 }
 
 .event-meta-row {
@@ -659,7 +705,6 @@ uni-button.search-btn[size="mini"] {
     gap: 12rpx;
   }
 }
-
 .danger {
   color: $danger;
 }

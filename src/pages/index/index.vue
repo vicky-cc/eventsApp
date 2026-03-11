@@ -22,6 +22,17 @@ interface MescrollBodyInstance {
   onReachBottom?: () => void;
 }
 
+const uiText = {
+  searchPlaceholder: "\u8bf7\u8f93\u5165\u5173\u952e\u8bcd\u641c\u7d22\u6d3b\u52a8",
+  clearSearch: "\u6e05\u9664\u641c\u7d22\u5173\u952e\u8bcd",
+  search: "\u641c\u7d22",
+  toggleGrid: "\u5207\u6362\u7f51\u683c\u89c6\u56fe",
+  toggleList: "\u5207\u6362\u5217\u8868\u89c6\u56fe",
+  loadingMore: "\u52a0\u8f7d\u66f4\u591a\u4e2d...",
+  noMore: "\u6ca1\u6709\u66f4\u591a\u6d3b\u52a8\u4e86",
+  loadMoreError: "\u52a0\u8f7d\u5931\u8d25\uff0c\u8bf7\u4e0b\u62c9\u91cd\u8bd5"
+} as const;
+
 const store = useEventStore();
 const { events, loading, error, viewMode, hasMore, keyword } = storeToRefs(store);
 
@@ -29,6 +40,7 @@ const keywordInput = ref("");
 const searchShellWrapperHeight = ref(120);
 const pageScrolled = ref(false);
 const forceSearchOnNextUp = ref(false);
+const showClearButton = computed(() => keywordInput.value.length > 0);
 
 const { mescrollInit, getMescroll, resetUpScroll } = useMescroll<MescrollBodyInstance>();
 
@@ -46,9 +58,9 @@ const upOption = {
     num: 1,
     size: 20
   },
-  textLoading: "加载更多中...",
-  textNoMore: "没有更多活动了",
-  textErr: "加载失败，请下拉重试",
+  textLoading: uiText.loadingMore,
+  textNoMore: uiText.noMore,
+  textErr: uiText.loadMoreError,
   empty: {
     use: false
   }
@@ -76,7 +88,7 @@ function measureSearchShellWrapper(): void {
     .exec();
 }
 
-function handleSearch(): void {
+function triggerSearch(): void {
   forceSearchOnNextUp.value = true;
 
   if (!getMescroll()) {
@@ -87,8 +99,16 @@ function handleSearch(): void {
   resetUpScroll();
 }
 
+function handleSearch(): void {
+  triggerSearch();
+}
+
 function handleDown(): void {
-  resetUpScroll();
+  triggerSearch();
+}
+
+function clearKeywordInput(): void {
+  keywordInput.value = "";
 }
 
 async function handleUp(instance: MescrollBodyInstance): Promise<void> {
@@ -132,7 +152,7 @@ function toggleViewMode(): void {
 }
 
 function retry(): void {
-  resetUpScroll();
+  triggerSearch();
 }
 
 onLoad(() => {
@@ -156,17 +176,20 @@ onPageScroll((event) => {
     <view class="search-shell-wrap" :class="{ 'search-shell-wrap-scrolled': pageScrolled }">
       <view class="search-shell">
         <view class="search-row">
-          <input
-            v-model="keywordInput"
-            class="search-input"
-            placeholder="请输入关键词搜索活动"
-            confirm-type="search"
-            @confirm="handleSearch"
-          />
-          <button class="search-btn" size="mini" @tap="handleSearch">搜索</button>
+          <view class="search-input-wrap">
+            <input
+              v-model="keywordInput"
+              class="search-input"
+              :placeholder="uiText.searchPlaceholder"
+              confirm-type="search"
+              @confirm="handleSearch"
+            />
+            <button v-if="showClearButton" class="search-clear" :aria-label="uiText.clearSearch" @tap="clearKeywordInput">x</button>
+          </view>
+          <button class="search-btn" size="mini" @tap="handleSearch">{{ uiText.search }}</button>
           <button
             class="layout-toggle"
-            :aria-label="nextViewMode === 'grid' ? '切换网格视图' : '切换列表视图'"
+            :aria-label="nextViewMode === 'grid' ? uiText.toggleGrid : uiText.toggleList"
             @tap="toggleViewMode"
           >
             <view class="layout-icon" :class="nextViewMode === 'grid' ? 'layout-icon-grid' : 'layout-icon-list'" />
@@ -196,3 +219,4 @@ onPageScroll((event) => {
     </mescroll-body>
   </view>
 </template>
+
